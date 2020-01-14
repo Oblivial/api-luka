@@ -71,7 +71,6 @@ public class InformationController {
 		Set<Tag> taglist = new HashSet<Tag>();
 		for(String tag : tags) {
 			Optional<Tag> t = tagRepository.findTagLike(tag);
-			System.out.println("present?: " + t.isPresent());
 			if(!t.isPresent()) {
 				Tag newTag = new Tag();
 				newTag.setName(tag);
@@ -96,8 +95,9 @@ public class InformationController {
 	
 	@PostMapping(path="/add/object")
 	public @ResponseBody String addNewInformation (@RequestBody Information info) {
+		info.setValidated(RoleManagement.userHasRole("OWNER"));
 		informationRepository.save(info);
-		return "Saved " + info.getid();
+		return "Saved " + info.getName();
 	}
 	
 	@DeleteMapping(path = "/delete/{id}")
@@ -167,7 +167,6 @@ public class InformationController {
 	public @ResponseBody List<Information> getInfoByTagRequestParam(@RequestParam String tag) {
 		// This returns a JSON or XML with the 
 		List<Information> info = informationRepository.findByTagsLike(tag.toString());
-		System.out.println("info size:" + info.size());
 		if(!info.isEmpty()) {
 			return info;
 		}else {
@@ -175,10 +174,13 @@ public class InformationController {
 		}
 	}
 	
+	@GetMapping(path="/all/next")
+	public @ResponseBody Iterable<Information> getNextInfo(@RequestParam Integer currentIndex, @RequestParam Integer entryCount) {
+		return informationRepository.allFromIndexTo(currentIndex, entryCount);
+	}
 	
 	@GetMapping(path="/all")
 	public @ResponseBody Iterable<Information> getAllInfo() {
-		// This returns a JSON or XML with the 
 		return informationRepository.findAll();
 	}
 }

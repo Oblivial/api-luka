@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import de.luka.api.infoarchive.Information;
 import de.luka.api.infotags.Tag;
@@ -21,8 +22,10 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
         )
     public List<Information> findByTagsLike(String tag);
     
-    
-    /* Tags By Count */
+    @Query(value = "SELECT * FROM information i where i.information_id > ?1 AND i.information_id < ?2", 
+            nativeQuery=true
+        )
+    public Iterable<Information> allFromIndexTo(Integer currentIndex, Integer entryCount);
     
     
 }

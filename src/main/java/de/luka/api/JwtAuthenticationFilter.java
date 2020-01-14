@@ -51,8 +51,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
  
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         try {
-	        Authentication a = authenticationManager.authenticate(authenticationToken);
-	        return a;
+	        Authentication auth = authenticationManager.authenticate(authenticationToken);
+	        return auth;
         }catch(BadCredentialsException e) {
         	throw new RuntimeException("(Bad Credentials) Could not authenticate: " + username);
         }catch(Exception e2 ) {
@@ -67,8 +67,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     	
     	CustomUserPrincipal p = (CustomUserPrincipal) authentication.getPrincipal();
         User user = p.getUserObject();
-        
-        System.out.println("===UserName " + user.getUsername());
         
         List<String> roles = user.getAuth();
         

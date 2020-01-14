@@ -10,7 +10,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 
-import de.luka.api.auth.privilege.Privilege;
 import de.luka.api.auth.user.User;
 
 @Entity
@@ -24,15 +23,7 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     private Collection<User> users;
  
-	@ManyToMany
-    @JoinTable(
-        name = "roles_privileges", 
-        joinColumns = @JoinColumn(
-          name = "role_id", referencedColumnName = "id"), 
-        inverseJoinColumns = @JoinColumn(
-          name = "privilege_id", referencedColumnName = "id"))
-    private Collection<Privilege> privileges;   
-	
+
     public String getName() {
 		return name;
 	}
@@ -49,13 +40,6 @@ public class Role {
 		this.users = users;
 	}
 
-	public Collection<Privilege> getPrivileges() {
-		return privileges;
-	}
-
-	public void setPrivileges(Collection<Privilege> privileges) {
-		this.privileges = privileges;
-	}
 
 
 }

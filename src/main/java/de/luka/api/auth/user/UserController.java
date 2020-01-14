@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.luka.api.auth.privilege.PrivilegeRepository;
 import de.luka.api.auth.role.RoleManagement;
 import de.luka.api.auth.role.RoleRepository;
 
@@ -26,13 +26,9 @@ public class UserController {
 	@Autowired
 	private RoleRepository roleRepo;
 
-	@Autowired
-	private PrivilegeRepository privilegeRepo;
 
 	@PostMapping(path="/signup")
 	public @ResponseBody String addNewUser (@RequestParam String userName, @RequestParam String password) {
-		System.out.println("got request");
-		System.out.println((userRepo == null) || (roleRepo == null) || (privilegeRepo == null));
 		User newUser = new User();
 		newUser.setPassword(password);
 		newUser.setUsername(userName);
@@ -41,10 +37,28 @@ public class UserController {
 
 		return "Saved " + userName;
 	}
-
+	
+	@PutMapping(path="/update/{username}/password")
+	public @ResponseBody String modifyPassword(@PathVariable("username") String userName, @RequestParam String newPassword) {
+		if(RoleManagement.getAuthUsername().equals(userName)) {
+			Optional<User> user = userRepo.userByName(userName);
+			if(user.isPresent()) {
+				User userObject = user.get();
+				userObject.setPassword(newPassword);
+				userRepo.save(userObject);
+				return "set new password for: " + userName;
+			}else {
+				throw new RuntimeException("User does not exist");
+			}
+		}else {
+			throw new RuntimeException("Cannot change password of other users");
+		}
+		
+	}
+	
 	@GetMapping(path="/get/{username}")
 	public @ResponseBody User getUser(@PathVariable("username") String userName) {
-		if(RoleManagement.getAuthUsername()==userName || RoleManagement.userHasRole("OWNER")) {
+		if(RoleManagement.getAuthUsername().equals(userName) || RoleManagement.userHasRole("OWNER")) {
 			Optional<User> user = userRepo.userByName(userName);
 			if(user.isPresent()){
 				return user.get();
@@ -55,8 +69,11 @@ public class UserController {
 			throw new RuntimeException("User does not have access to profile");
 		}
 	}
-	/*
+	
 	@GetMapping(path="/nameinuse")
-	public @ResponseBody boolean 
-	*/
+	public @ResponseBody boolean isNameInUse(@RequestParam String userName) {
+		Optional<User> user = userRepo.userByName(userName);
+		return user.isPresent();
+	}
+	
 }
