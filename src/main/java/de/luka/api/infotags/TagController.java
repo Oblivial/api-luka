@@ -63,6 +63,11 @@ public class TagController {
 		return tagRepository.findAll();
 	}
 	
+	@GetMapping(path="/mostcommon")
+	public @ResponseBody Iterable<Tag> getPopularTags(){
+		return tagRepository.findAllById(tagRepository.getPopularTagIDs());
+	}
+	
 	@GetMapping(path="/{tagName}")
 	public @ResponseBody Tag getTag(@PathVariable("tagName") String tagName) {
 		// This returns a JSON or XML with the 
