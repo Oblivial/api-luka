@@ -48,10 +48,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
- 
+        
+        
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         try {
 	        Authentication auth = authenticationManager.authenticate(authenticationToken);
+	        response.setHeader("Access-Control-Expose-Headers", "Authorization");
 	        return auth;
         }catch(BadCredentialsException e) {
         	throw new RuntimeException("(Bad Credentials) Could not authenticate: " + username);

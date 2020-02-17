@@ -39,17 +39,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException, java.io.IOException {
+    	
+    	
     	UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
         if (authentication == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
+        
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        
         filterChain.doFilter(request, response);
     }
-
+    
+    
+    
     @SuppressWarnings("unchecked")
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.TOKEN_HEADER);

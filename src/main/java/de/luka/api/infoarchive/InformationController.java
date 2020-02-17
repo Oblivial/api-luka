@@ -2,11 +2,15 @@ package de.luka.api.infoarchive;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,7 +52,6 @@ public class InformationController {
 	@Autowired 
 	private TagRepository tagRepository;
 	
-	private UsernamePasswordAuthenticationToken accessToken;
 	
 	@PostMapping(path="/add") // Map ONLY POST Requests
 	public @ResponseBody String addNewInformation (@RequestParam String name, 
@@ -62,6 +65,7 @@ public class InformationController {
 		n.setDescription(description);
 		n.setName(name);
 		n.setValidated(RoleManagement.userHasRole("OWNER"));
+		n.setLastVisited(Instant.now());
 		try {
 			n.setUrl(new URL(url));
 		} catch (MalformedURLException e) {
@@ -139,7 +143,7 @@ public class InformationController {
 	public @ResponseBody long getCount() {
 		return informationRepository.count();
 	}
-	
+
 	
 	@GetMapping(path="/{id}")
 	public @ResponseBody Information getInfo(@PathVariable("id") long id) {
@@ -154,8 +158,8 @@ public class InformationController {
 	
 	@GetMapping(path="/bytag/{tag}")
 	public @ResponseBody List<Information> getInfoByTag(@PathVariable("tag") String tag) {
-		// This returns a JSON or XML with the 
-		List<Information> info = informationRepository.findByTagsLike(tag.toString());
+		// This returns a JSON or XML with the s
+		List<Information> info = informationRepository.findByTagsIdsLike(tagRepository.findTagIdsLike(tag));
 		if(!info.isEmpty()) {
 			return info;
 		}else {
@@ -166,7 +170,7 @@ public class InformationController {
 	@GetMapping(path="/bytag")
 	public @ResponseBody List<Information> getInfoByTagRequestParam(@RequestParam String tag) {
 		// This returns a JSON or XML with the 
-		List<Information> info = informationRepository.findByTagsLike(tag.toString());
+		List<Information> info = informationRepository.findByTagsIdsLike(tagRepository.findTagIdsLike(tag));
 		if(!info.isEmpty()) {
 			return info;
 		}else {
@@ -174,9 +178,13 @@ public class InformationController {
 		}
 	}
 	
-	@GetMapping(path="/all/next")
-	public @ResponseBody Iterable<Information> getNextInfo(@RequestParam Integer currentIndex, @RequestParam Integer entryCount) {
-		return informationRepository.allFromIndexTo(currentIndex, entryCount);
+	@GetMapping(path="/next")
+	public @ResponseBody Iterable<Information> getNextInfo(@RequestParam Integer currentIndex, @RequestParam Integer entryCount, @RequestParam Optional<List<String>> tags) {
+		if(tags!=null && tags.isPresent()) {
+			return informationRepository.allFromIndexToTags(currentIndex, entryCount, tagRepository.getTagIds(tags.get()));
+		}else {
+			return informationRepository.allFromIndexTo(currentIndex, entryCount);
+		}	
 	}
 	
 	@GetMapping(path="/all")

@@ -1,6 +1,8 @@
 package de.luka.api.infoarchive;
 
 import java.net.URL;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +22,7 @@ import de.luka.api.infotags.Tag;
 @Table(name = "Information")
 public class Information {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long information_id;
 	
 	private String name; 
@@ -28,10 +30,9 @@ public class Information {
 	private String htmlContent;
 	private URL url;
 	private boolean validated;
-	
+	private Instant lastVisited;
 	
 
-	
 	@ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "information_tag", 
@@ -42,6 +43,12 @@ public class Information {
 	
 	public boolean isValidated() {
 		return validated;
+	}
+	public Instant getLastVisited() {
+		return lastVisited;
+	}
+	public void setLastVisited(Instant lastVisited) {
+		this.lastVisited = lastVisited;
 	}
 	public void setValidated(boolean validated) {
 		this.validated = validated;

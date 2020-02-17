@@ -21,7 +21,7 @@ import javax.persistence.FetchType;
 @Table(name = "Tag")
 public class Tag {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long tag_id;
 	private String name;
 	

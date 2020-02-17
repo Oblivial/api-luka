@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController	// This means that this class is a Controller
 @RequestMapping(path="/tags")
 public class TagController {
