@@ -3,7 +3,6 @@ package de.luka.api.auth.user;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import de.luka.api.auth.role.RoleManagement;
 import de.luka.api.auth.role.RoleRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController	// This means that this class is a Controller
 @RequestMapping(path="/user")
 public class UserController {
+	
 	@Autowired
 	private UserRepository userRepo;
 
@@ -46,7 +45,7 @@ public class UserController {
 				User userObject = user.get();
 				userObject.setPassword(newPassword);
 				userRepo.save(userObject);
-				return "set new password for: " + userName;
+				return "Set new password for: " + userName;
 			}else {
 				throw new RuntimeException("User does not exist");
 			}

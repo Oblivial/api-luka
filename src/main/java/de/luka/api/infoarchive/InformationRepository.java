@@ -35,7 +35,7 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
     		"	SELECT information_id FROM (\n" + 
     		"		SELECT information_id, Pager FROM (\n" + 
     		"			SELECT information_id, ROW_NUMBER() OVER () AS Pager FROM information i\n" + 
-    		"            ORDER BY Pager) AS T1 WHERE Pager > ?1 AND Pager < ?2 ) AS T2)", 
+    		"            ORDER BY Pager) AS TableOne WHERE Pager > ?1 AND Pager < ?2 ) AS TableTwo)", 
             nativeQuery=true
         )
     public Iterable<Information> allFromIndexTo(Integer currentIndex, Integer entryCount);
@@ -47,11 +47,8 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
     		"				FROM information i where information_id IN (\n" + 
     		"					SELECT information_id FROM information_tag where tag_id IN (?3)\n" + 
     		"				)\n" + 
-    		"ORDER BY Pager) AS T WHERE Pager > ?1 AND Pager < ?2) AS T2)", 
+    		"ORDER BY Pager) AS TableOne WHERE Pager > ?1 AND Pager < ?2) AS TableTwo)", 
             nativeQuery=true
         )
     public Iterable<Information> allFromIndexToTags(Integer currentIndex, Integer entryCount, List<Long> tagids);
-    
-    
-    
 }

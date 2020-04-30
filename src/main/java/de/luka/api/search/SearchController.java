@@ -1,13 +1,9 @@
 package de.luka.api.search;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +15,7 @@ import de.luka.api.infoarchive.InformationRepository;
 import de.luka.api.infotags.Tag;
 import de.luka.api.infotags.TagRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
-@RestController	// This means that this class is a Controller
+@RestController	
 @RequestMapping(path="/search")
 public class SearchController {
 	

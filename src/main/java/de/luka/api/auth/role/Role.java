@@ -6,8 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 
 import de.luka.api.auth.user.User;
@@ -39,7 +37,10 @@ public class Role {
 	public void setUsers(Collection<User> users) {
 		this.users = users;
 	}
-
+	
+	public void addUser(User user) {
+		this.users.add(user);
+	}
 
 
 }

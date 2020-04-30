@@ -1,6 +1,5 @@
 package de.luka.api.search;
 
-import java.util.List;
 
 public class Search<T> {
 	private Iterable<?> matches;

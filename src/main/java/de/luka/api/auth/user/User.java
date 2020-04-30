@@ -12,12 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import de.luka.api.auth.role.Role;
 import de.luka.api.auth.user.listconverter.StringListConverter;
+import de.luka.api.infoarchive.Information;
 
 @Entity
 public class User {
@@ -41,6 +43,9 @@ public class User {
 	@Convert(converter = StringListConverter.class)
 	private List<String> rolesAsString = new ArrayList<String>();
 	
+	@OneToMany(mappedBy = "creator")
+	private List<Information> informationList;
+	
 	@Transient
 	BCryptPasswordEncoder pwEncoder = new BCryptPasswordEncoder();
 	
@@ -51,19 +56,19 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
-	public String getPassword() {
-		return password;
+	
+	protected String getPassword() {
+		return this.password;
 	}
-
+	
 	public void setPassword(String password) {
 		this.password = "{bcrypt}" + pwEncoder.encode(password);
 	}
 
-	public Collection<Role> getRoles() {
-		return roles;
+	public List<String> getRolesAsString() {
+		return rolesAsString;
 	}
-	
+
 	public List<String> getAuth() {
 		return rolesAsString;
 	}

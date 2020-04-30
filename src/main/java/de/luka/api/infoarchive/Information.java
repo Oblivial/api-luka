@@ -1,21 +1,23 @@
 package de.luka.api.infoarchive;
 
 import java.net.URL;
-import java.sql.Date;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 
+import de.luka.api.auth.user.User;
 import de.luka.api.infotags.Tag;
 
 @Entity // This tells Hibernate to make a table out of this class
@@ -41,6 +43,16 @@ public class Information {
        )
 	private Set<Tag> tags = new HashSet<>();
 	
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+	private User creator;
+	
+	public User getCreator() {
+		return creator;
+	}
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
 	public boolean isValidated() {
 		return validated;
 	}

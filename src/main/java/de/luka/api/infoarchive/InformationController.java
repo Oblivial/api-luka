@@ -2,29 +2,13 @@ package de.luka.api.infoarchive;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Date;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,11 +21,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.luka.api.auth.role.RoleManagement;
+import de.luka.api.auth.user.User;
+import de.luka.api.auth.user.UserRepository;
 import de.luka.api.infotags.Tag;
 import de.luka.api.infotags.TagRepository;
 
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController	// This means that this class is a Controller
 @RequestMapping(path="/information")
 public class InformationController {
@@ -49,12 +34,15 @@ public class InformationController {
 	@Autowired 
 	private InformationRepository informationRepository;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
 	@Autowired 
 	private TagRepository tagRepository;
 	
 	
 	@PostMapping(path="/add") // Map ONLY POST Requests
-	public @ResponseBody String addNewInformation (@RequestParam String name, 
+	public @ResponseBody Information addNewInformation (@RequestParam String name, 
 			@RequestParam String description, 
 			@RequestParam String url, 
 			@RequestParam List<String> tags) {
@@ -64,6 +52,12 @@ public class InformationController {
 		Information n = new Information();
 		n.setDescription(description);
 		n.setName(name);
+		Optional<User> user = userRepository.userByName(RoleManagement.getAuthUsername());
+		if(user.isPresent()) {
+			n.setCreator(user.get());
+		}else {
+			throw new RuntimeException("Creator could not be set, User: " + RoleManagement.getAuthUsername() + " not found");
+		}
 		n.setValidated(RoleManagement.userHasRole("OWNER"));
 		n.setLastVisited(Instant.now());
 		try {
@@ -94,7 +88,7 @@ public class InformationController {
 		}
 		n.setTags(taglist);
 		informationRepository.save(n);
-		return "Saved " + name;
+		return n;
 	}
 	
 	@PostMapping(path="/add/object")
@@ -180,8 +174,13 @@ public class InformationController {
 	
 	@GetMapping(path="/next")
 	public @ResponseBody Iterable<Information> getNextInfo(@RequestParam Integer currentIndex, @RequestParam Integer entryCount, @RequestParam Optional<List<String>> tags) {
-		if(tags!=null && tags.isPresent()) {
-			return informationRepository.allFromIndexToTags(currentIndex, entryCount, tagRepository.getTagIds(tags.get()));
+		if(tags.isPresent()) {
+			List<Long> tagids = tagRepository.getTagIds(tags.get());
+			if(tagids != null && tagids.size() > 0) {
+				return informationRepository.allFromIndexToTags(currentIndex, entryCount, tagids);
+			}else {
+				throw new RuntimeException("No Information found that matches the Tag");
+			}
 		}else {
 			return informationRepository.allFromIndexTo(currentIndex, entryCount);
 		}	
